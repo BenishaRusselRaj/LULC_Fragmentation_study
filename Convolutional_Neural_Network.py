@@ -32,16 +32,13 @@ with rasterio.open(ground_truth_file) as src:
     ground_truth = src.read(1)
 
 stacked_shape = stacked_image.shape
-print(f"Original stacked image shape: {stacked_shape}")
 
 
 reshaped_image = stacked_image.reshape(stacked_shape[0], -1).T
-print(f"Reshaped image shape for PCA: {reshaped_image.shape}")
 
 
 valid_pixels = np.all(reshaped_image, axis=1) & np.all(np.isfinite(reshaped_image), axis=1)
 valid_pixels_filtered = reshaped_image[valid_pixels]
-print(f"Valid pixels shape: {valid_pixels_filtered.shape}")
 
 
 num_classes = 3
@@ -76,7 +73,6 @@ label_encoder = LabelEncoder()
 y_encoded = label_encoder.fit_transform(y_train)
 y_categorical = to_categorical(y_encoded, num_classes)
 
-print(f"Categorical labels shape: {y_categorical.shape}")
 
 
 model = models.Sequential([
@@ -146,4 +142,5 @@ accuracy = np.mean(valid_ground_truth == predicted_labels)
 print(f"\nOverall Accuracy: {accuracy*100:.2f}%")
 
 #%%
+
 print('--------%s minutes--------' % (round(((time.time() - start) / 60), 2)))
