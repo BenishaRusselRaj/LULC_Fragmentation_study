@@ -91,7 +91,7 @@ print("Confusion Matrix:")
 print(confusionMatrix)
 print(f"Cohen Kappa Coefficient: {kappa:.3f}")
 
-#%% Patch Metrics
+#%%
 vegetation_image_cleaned = ndimage.binary_closing(vegetation_image, structure=np.ones((3, 3))).astype(vegetation_image.dtype)
 vegetation_image_cleaned = ndimage.binary_opening(vegetation_image_cleaned, structure=np.ones((3, 3))).astype(vegetation_image_cleaned.dtype)
 
@@ -112,13 +112,6 @@ for area_label in range(1, num_areas + 1):
 
 print ("Number of large patches found: %s" % len(patches))
 
-# patch_edges = np.array(patch_edges)
-# total_edges = np.sum(patch_edges)
-# total_area = stacked_shape[1] * stacked_shape[2]
-# edge_density = total_edges / total_area
-# edge_density = round(edge_density, 2)
-# print ("Edge Density: %s" % edge_density)
-
 
 output_path = output_files_path + "\\" + name + '_MLA_classification.tif'
 with rasterio.open(output_path, 'w', **profile) as output_dataset:
@@ -127,6 +120,7 @@ with rasterio.open(output_path, 'w', **profile) as output_dataset:
 output_path = output_files_path + "\\" + name + '_MLA_classification_vegetation.tif'
 with rasterio.open(output_path, 'w', **profile) as output_dataset:
     output_dataset.write(classification_image.astype(rasterio.uint8), 1)
+
 
 
 print('--------%s minutes--------' %(round(((time.time()-start) / 60), 2)))
