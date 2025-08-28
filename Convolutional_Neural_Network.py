@@ -7,17 +7,17 @@ from tensorflow.keras import layers, models
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder 
 from tensorflow.keras.utils import to_categorical
-from matplotlib.colors import ListedColormap
+
 
 #%%
 start = time.time()
 
 #%%
-stacked_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2015_Merged_clipped_scene_SCP_RT_815.tif"
-ground_truth_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2015_Landcover_Mudumalai_NP.tif"
+# stacked_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2015_Merged_clipped_scene_SCP_RT_815.tif"
+# ground_truth_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2015_Landcover_Mudumalai_NP.tif"
 
-# stacked_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2025_Landsat_merged_RT.tif"
-# ground_truth_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2025_Landcover_classified.tif"
+stacked_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2025_Landsat_merged_RT.tif"
+ground_truth_file = r"C:\Users\CBEEV\OneDrive - IIT Madras\Thesis Project\Codes\Final\Final\Data\2025_Landcover_classified.tif"
 
 name = stacked_file.rsplit('\\', 1)[1].rsplit('.', 1)[0]
 output_files_path = stacked_file.rsplit('\\', 1)[0] + '\\'+ name + '_Outputs'
@@ -34,11 +34,14 @@ with rasterio.open(ground_truth_file) as src:
 stacked_shape = stacked_image.shape
 
 
+
 reshaped_image = stacked_image.reshape(stacked_shape[0], -1).T
+
 
 
 valid_pixels = np.all(reshaped_image, axis=1) & np.all(np.isfinite(reshaped_image), axis=1)
 valid_pixels_filtered = reshaped_image[valid_pixels]
+
 
 
 num_classes = 3
@@ -52,7 +55,7 @@ pca_features = pca_features.reshape(7, stacked_shape[1], stacked_shape[2])
 
 
 pca_features = np.transpose(pca_features, (1, 2, 0))
-print(f"PCA features shape for CNN: {pca_features.shape}")
+
 
 
 ground_truth_reshaped = ground_truth.flatten()
@@ -64,9 +67,6 @@ valid_mask_2d.flat[valid_pixels] = True
 
 x_train = pca_features[valid_mask_2d]
 y_train = ground_truth_reshaped[valid_pixels]
-
-print(f"Training data shape: {x_train.shape}")
-print(f"Training labels shape: {y_train.shape}")
 
 
 label_encoder = LabelEncoder()
@@ -99,7 +99,7 @@ history = model.fit(
     x_train, y_categorical,
     epochs=30,
     validation_split=0.3,
-    batch_size=32,
+    batch_size=30,
     verbose=1
 )
 
@@ -127,12 +127,9 @@ prediction_vis = prediction_image.copy()
 prediction_vis[~valid_mask_2d] = -1
 
 unique_classes = np.unique(predicted_labels)
-n_classes = len(unique_classes)
-colors = plt.cm.tab10(np.linspace(0, 1, n_classes + 1))  # +1 for no-data
-cmap = ListedColormap(colors)
 
 plt.figure()
-plt.imshow(prediction_vis, cmap=cmap, vmin=-1, vmax=max(unique_classes))
+plt.imshow(prediction_vis, cmap='RdYlGn', vmin=-1, vmax=max(unique_classes))
 plt.title('CNN Predicted Classification')
 plt.axis('off')
 
@@ -142,5 +139,4 @@ accuracy = np.mean(valid_ground_truth == predicted_labels)
 print(f"\nOverall Accuracy: {accuracy*100:.2f}%")
 
 #%%
-
 print('--------%s minutes--------' % (round(((time.time() - start) / 60), 2)))
