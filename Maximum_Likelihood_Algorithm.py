@@ -107,8 +107,7 @@ for area_label in range(1, num_areas + 1):
     if np.sum(area) >= minimum_area_pixels:
         patches.append(area_label)
         print ("Patch %s: %s pixels" % (area_label, np.sum(area)))
-        edge = ndimage.binary_dilation(area) ^ area
-        patch_edges.append(edge)
+
 
 print ("Number of large patches found: %s" % len(patches))
 
@@ -124,3 +123,4 @@ with rasterio.open(output_path, 'w', **profile) as output_dataset:
 
 
 print('--------%s minutes--------' %(round(((time.time()-start) / 60), 2)))
+
